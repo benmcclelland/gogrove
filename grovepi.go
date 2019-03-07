@@ -18,6 +18,7 @@ const (
 	analogRead      uint8 = 3
 	analogWrite     uint8 = 4
 	pinMode         uint8 = 5
+	ultraSonic      uint8 = 7
 	firmwareVersion uint8 = 8
 	dhtTemp         uint8 = 40
 
@@ -180,7 +181,7 @@ func (s *Session) TurnOff(port uint8) error {
 // AnalogRead reads analog value from port
 // this is only valid for PortA0, PortA1, or PortA2
 // the returned value will be between 0-1023 inclusive
-func (s *Session) AnalogRead(port uint8) (int, error) {
+func (s *Session) AnalogRead(port uint8) (uint16, error) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -208,7 +209,7 @@ func (s *Session) AnalogRead(port uint8) (int, error) {
 		return 0, fmt.Errorf("command error response: %v", read[0])
 	}
 
-	return int(read[1])*256 + int(read[2]), nil
+	return uint16(read[1])*256 + uint16(read[2]), nil
 }
 
 // AnalogWrite writes value 0-255 inclusive to given port
@@ -268,4 +269,34 @@ func float32frombytes(bytes []byte) float32 {
 	bits := binary.LittleEndian.Uint32(bytes)
 	float := math.Float32frombits(bits)
 	return float
+}
+
+// ReadUltraSonic returns distance in cm
+// Sensor spec: measuring range 2-350cm, resolution 1cm
+func (s *Session) ReadUltraSonic(port uint8) (uint16, error) {
+	s.Lock()
+	defer s.Unlock()
+
+	write := []byte{0, ultraSonic, port, 0, 0}
+	read := make([]byte, 3)
+	if err := s.d.Tx(write, read); err != nil {
+		return 0, err
+	}
+	i := 0
+	for {
+		if read[0] == ultraSonic || i == 100 {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+		if err := s.d.Tx(nil, read); err != nil {
+			return 0, err
+		}
+		i++
+	}
+
+	if read[0] != ultraSonic {
+		return 0, fmt.Errorf("invalid command response")
+	}
+
+	return uint16(read[1])*256 + uint16(read[2]), nil
 }
