@@ -209,7 +209,7 @@ func (s *Session) AnalogRead(port uint8) (uint16, error) {
 		return 0, fmt.Errorf("command error response: %v", read[0])
 	}
 
-	return uint16(read[1])*256 + uint16(read[2]), nil
+	return binary.BigEndian.Uint16(read[1:][:2]), nil
 }
 
 // AnalogWrite writes value 0-255 inclusive to given port
@@ -298,5 +298,5 @@ func (s *Session) ReadUltraSonic(port uint8) (uint16, error) {
 		return 0, fmt.Errorf("invalid command response")
 	}
 
-	return uint16(read[1])*256 + uint16(read[2]), nil
+	return binary.BigEndian.Uint16(read[1:][:2]), nil
 }
