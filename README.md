@@ -29,7 +29,7 @@ To see if the Rasberry Pi is communicating with the Grove pi, run the following:
 
 You should see the "04" for the GrovePi and the "3e" and "62" for the LCD.
 
-If these are nto showing up, try reloading the i2c_bcm2835 module:
+If these are not showing up, try reloading the i2c_bcm2835 module:
 
 ```sh
 # sudo modprobe i2c_dev
