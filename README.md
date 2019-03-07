@@ -6,6 +6,8 @@ Go library for interacting with GrovePi
 
 Currently only tested with GrovePi firmware version 1.3.0
 
+See examples in [example_test.go](https://github.com/benmcclelland/gogrove/blob/master/example_test.go)
+
 The Rasberry Pi communicates with GrovePi over I2C.  The following kernel
 modules are needed to support this:
 
