@@ -29,8 +29,8 @@ func ExampleSession_SetPortMode() {
 	}
 	defer s.Close()
 
-	// Set port D6 to Input
-	err = s.SetPortMode(gogrove.PortD6, gogrove.ModeInput)
+	// Set port D3 to Input
+	err = s.SetPortMode(gogrove.PortD3, gogrove.ModeInput)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -44,7 +44,6 @@ func Example() {
 	defer s.Close()
 
 	// blink LED on D6, errors ignored
-	s.SetPortMode(gogrove.PortD6, gogrove.ModeInput)
 	for i := 0; i < 5; i++ {
 		s.TurnOn(gogrove.PortD6)
 		time.Sleep(time.Second)
