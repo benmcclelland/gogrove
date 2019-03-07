@@ -1,7 +1,9 @@
 package gogrove
 
 import (
+	"encoding/binary"
 	"fmt"
+	"math"
 	"sync"
 	"time"
 
@@ -17,6 +19,7 @@ const (
 	analogWrite     uint8 = 4
 	pinMode         uint8 = 5
 	firmwareVersion uint8 = 8
+	dhtTemp         uint8 = 40
 
 	dataValid        uint8 = 3
 	dataNotAvailable uint8 = 23
@@ -46,6 +49,11 @@ const (
 	ModeInput uint8 = 0
 	// ModeOutput is used for SetPortMode to output
 	ModeOutput uint8 = 1
+
+	// BlueDHTSensor is the DHT sensor that comes with base kit
+	BlueDHTSensor uint8 = 0
+	// WhiteDHTSensor is the separate white DHT sensor
+	WhiteDHTSensor uint8 = 1
 )
 
 // Session holds session info for interacting with GrovePi
@@ -216,4 +224,48 @@ func (s *Session) AnalogWrite(port, value uint8) error {
 	}
 	write := []byte{0, analogWrite, port, value, 0}
 	return s.d.Tx(write, nil)
+}
+
+// ReadDHT returns temp (C), humidity (%), error
+// must pass the sensort type,
+// one of: gogrove.BlueDHTSensor gogrove.WhiteDHTSensor
+func (s *Session) ReadDHT(port, sensor uint8) (float32, float32, error) {
+	s.Lock()
+	defer s.Unlock()
+
+	write := []byte{0, dhtTemp, port, sensor, 0}
+	read := make([]byte, 9)
+	if err := s.d.Tx(write, read); err != nil {
+		return 0, 0, err
+	}
+	i := 0
+	for {
+		if read[0] == dhtTemp || i == 100 {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+		if err := s.d.Tx(nil, read); err != nil {
+			return 0, 0, err
+		}
+		i++
+	}
+
+	if read[0] != dhtTemp {
+		return 0, 0, fmt.Errorf("invalid command response")
+	}
+
+	temp := float32frombytes(read[1:][:4])
+	humidity := float32frombytes(read[5:][:4])
+
+	if temp > -100.0 && temp < 150.0 && humidity >= 0.0 && humidity <= 100.0 {
+		return temp, humidity, nil
+	}
+
+	return 0, 0, fmt.Errorf("value out of bounds")
+}
+
+func float32frombytes(bytes []byte) float32 {
+	bits := binary.LittleEndian.Uint32(bytes)
+	float := math.Float32frombits(bits)
+	return float
 }
