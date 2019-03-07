@@ -41,6 +41,12 @@ If these are not showing up, try reloading the i2c_bcm2835 module:
 
 This package is goroutine safe within a session
 
+To cross compile your go app for the Rasberry Pi:
+
+```sh
+# GOOS=linux GOARCH=arm go build
+```
+
 Some logic within is based on the Python library aviable [here](https://github.com/DexterInd/GrovePi/tree/master/Software/Python)
 
 Useful links:
