@@ -47,7 +47,7 @@ To cross compile your go app for the Rasberry Pi:
 # GOOS=linux GOARCH=arm go build
 ```
 
-Some logic within is based on the Python library aviable [here](https://github.com/DexterInd/GrovePi/tree/master/Software/Python)
+Some logic within is based on the Python library available [here](https://github.com/DexterInd/GrovePi/tree/master/Software/Python)
 
 Useful links:
 

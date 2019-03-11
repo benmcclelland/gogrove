@@ -22,7 +22,6 @@ const (
 	firmwareVersion uint8 = 8
 	dhtTemp         uint8 = 40
 
-	dataValid        uint8 = 3
 	dataNotAvailable uint8 = 23
 
 	// PortA0 is the value for GrovePi A0
@@ -57,14 +56,14 @@ const (
 	WhiteDHTSensor uint8 = 1
 )
 
-// Session holds session info for interacting with GrovePi
+// Session holds session info for interacting with GrovePi.
 type Session struct {
 	sync.Mutex
 	d *i2c.Dev
 	b i2c.BusCloser
 }
 
-// New initializes new session with default GrovePi address
+// New initializes new session with default GrovePi address.
 func New() (*Session, error) {
 	if _, err := host.Init(); err != nil {
 		return nil, err
@@ -81,7 +80,7 @@ func New() (*Session, error) {
 	}, nil
 }
 
-// NewWithAddress initializes new session with given GrovePi address
+// NewWithAddress initializes new session with given GrovePi address.
 func NewWithAddress(address uint16) (*Session, error) {
 	if _, err := host.Init(); err != nil {
 		return nil, err
@@ -98,12 +97,12 @@ func NewWithAddress(address uint16) (*Session, error) {
 	}, nil
 }
 
-// Close closes GrovePi session
+// Close closes GrovePi session.
 func (s *Session) Close() error { return s.b.Close() }
 
 // SetPortMode sets port to mode, for example:
-// SetPortMode(gogrove.PortA0, gogrove.ModeOutput)
-// SetPortMode(gogrove.PortD3, gogrove.ModeInput)
+// SetPortMode(gogrove.PortA0, gogrove.ModeOutput),
+// SetPortMode(gogrove.PortD3, gogrove.ModeInput).
 func (s *Session) SetPortMode(port, mode uint8) error {
 	s.Lock()
 	defer s.Unlock()
@@ -112,7 +111,7 @@ func (s *Session) SetPortMode(port, mode uint8) error {
 	return s.d.Tx(write, nil)
 }
 
-// GetFirmwareVersion returns the GrovePi firmware version
+// GetFirmwareVersion returns the GrovePi firmware version.
 func (s *Session) GetFirmwareVersion() (string, error) {
 	s.Lock()
 	defer s.Unlock()
@@ -128,8 +127,8 @@ func (s *Session) GetFirmwareVersion() (string, error) {
 	return fmt.Sprintf("%v.%v.%v", read[1], read[2], read[3]), nil
 }
 
-// DigitalRead return the value from a digital port
-// on success, this will be either 0 or 1
+// DigitalRead returns the value from a digital port.
+// On success, this will be either 0 or 1.
 func (s *Session) DigitalRead(port uint8) (uint8, error) {
 	s.Lock()
 	defer s.Unlock()
@@ -142,10 +141,10 @@ func (s *Session) DigitalRead(port uint8) (uint8, error) {
 	return read[1], nil
 }
 
-// IsOn is shorthand for DigitalRead on a digital port
+// IsOn is shorthand for DigitalRead on a digital port,
 // returning true if the port is 1
-// and false if the port is 0
-// this ignores errors from DigitalRead for easier inlining
+// and false if the port is 0.
+// This ignores errors from DigitalRead for easier inlining.
 func (s *Session) IsOn(port uint8) bool {
 	state, _ := s.DigitalRead(port)
 	if state == 0 {
@@ -154,8 +153,8 @@ func (s *Session) IsOn(port uint8) bool {
 	return true
 }
 
-// DigitalWrite sets the value for the given port
-// The value must be 0 or 1
+// DigitalWrite sets the value for the given port.
+// The value must be 0 or 1.
 func (s *Session) DigitalWrite(port, value uint8) error {
 	s.Lock()
 	defer s.Unlock()
@@ -168,19 +167,19 @@ func (s *Session) DigitalWrite(port, value uint8) error {
 	return s.d.Tx(write, nil)
 }
 
-// TurnOn is shorthand for DigitalWrite(port, 1)
+// TurnOn is shorthand for DigitalWrite(port, 1).
 func (s *Session) TurnOn(port uint8) error {
 	return s.DigitalWrite(port, 1)
 }
 
-// TurnOff is shorthand for DigitalWrite(port, 0)
+// TurnOff is shorthand for DigitalWrite(port, 0).
 func (s *Session) TurnOff(port uint8) error {
 	return s.DigitalWrite(port, 0)
 }
 
-// AnalogRead reads analog value from port
-// this is only valid for PortA0, PortA1, or PortA2
-// the returned value will be between 0-1023 inclusive
+// AnalogRead reads analog value from port.
+// This is only valid for PortA0, PortA1, or PortA2.
+// The returned value will be between 0-1023 inclusive.
 func (s *Session) AnalogRead(port uint8) (uint16, error) {
 	s.Lock()
 	defer s.Unlock()
@@ -204,17 +203,16 @@ func (s *Session) AnalogRead(port uint8) (uint16, error) {
 		}
 		i++
 	}
-	// response of 3 seems to be "data valid"?
-	if read[0] != dataValid {
+	if read[0] != analogRead {
 		return 0, fmt.Errorf("command error response: %v", read[0])
 	}
 
 	return binary.BigEndian.Uint16(read[1:][:2]), nil
 }
 
-// AnalogWrite writes value 0-255 inclusive to given port
+// AnalogWrite writes value 0-255 inclusive to given port.
 // This appears to only be valid for PortD3, PortD5, and PortD6
-// using PWM write
+// using PWM write.
 func (s *Session) AnalogWrite(port, value uint8) error {
 	s.Lock()
 	defer s.Unlock()
@@ -227,9 +225,9 @@ func (s *Session) AnalogWrite(port, value uint8) error {
 	return s.d.Tx(write, nil)
 }
 
-// ReadDHT returns temp (C), humidity (%), error
-// must pass the sensort type,
-// one of: gogrove.BlueDHTSensor gogrove.WhiteDHTSensor
+// ReadDHT returns temp (C), humidity (%).
+// Must pass the sensort type,
+// one of: gogrove.BlueDHTSensor gogrove.WhiteDHTSensor.
 func (s *Session) ReadDHT(port, sensor uint8) (float32, float32, error) {
 	s.Lock()
 	defer s.Unlock()
@@ -252,7 +250,7 @@ func (s *Session) ReadDHT(port, sensor uint8) (float32, float32, error) {
 	}
 
 	if read[0] != dhtTemp {
-		return 0, 0, fmt.Errorf("invalid command response")
+		return 0, 0, fmt.Errorf("invalid command response: %v", read[0])
 	}
 
 	temp := float32frombytes(read[1:][:4])
@@ -271,8 +269,8 @@ func float32frombytes(bytes []byte) float32 {
 	return float
 }
 
-// ReadUltraSonic returns distance in cm
-// Sensor spec: measuring range 2-350cm, resolution 1cm
+// ReadUltraSonic returns distance in cm.
+// Sensor spec: measuring range 2-350cm, resolution 1cm.
 func (s *Session) ReadUltraSonic(port uint8) (uint16, error) {
 	s.Lock()
 	defer s.Unlock()
@@ -295,7 +293,7 @@ func (s *Session) ReadUltraSonic(port uint8) (uint16, error) {
 	}
 
 	if read[0] != ultraSonic {
-		return 0, fmt.Errorf("invalid command response")
+		return 0, fmt.Errorf("invalid command response: %v", read[0])
 	}
 
 	return binary.BigEndian.Uint16(read[1:][:2]), nil
