@@ -16,13 +16,13 @@ const (
 	textCmd uint8 = 0x80
 )
 
-// LCD holds session info for interacting with GrovePi LCD
+// LCD holds session info for interacting with GrovePi LCD.
 type LCD struct {
 	sync.Mutex
 	b i2c.BusCloser
 }
 
-// NewLCD initializes a new session with the LCD
+// NewLCD initializes a new session with the LCD.
 func NewLCD() (*LCD, error) {
 	if _, err := host.Init(); err != nil {
 		return nil, err
@@ -36,10 +36,10 @@ func NewLCD() (*LCD, error) {
 	return &LCD{b: b}, nil
 }
 
-// Close closes session with LCD
+// Close closes session with LCD.
 func (l *LCD) Close() error { return l.b.Close() }
 
-// SetRGB sets the background RGB LCD color
+// SetRGB sets the background RGB LCD color.
 func (l *LCD) SetRGB(r, g, b uint8) error {
 	l.Lock()
 	defer l.Unlock()
@@ -72,7 +72,7 @@ func (l *LCD) SetRGB(r, g, b uint8) error {
 	return nil
 }
 
-// ClearText clears the display text
+// ClearText clears the display text.
 func (l *LCD) ClearText() error {
 	l.Lock()
 	defer l.Unlock()
@@ -85,7 +85,7 @@ func (l *LCD) ClearText() error {
 	return nil
 }
 
-// SetText clears display text, and sets text
+// SetText clears display text, and sets text.
 func (l *LCD) SetText(str string) error {
 	l.Lock()
 	defer l.Unlock()
