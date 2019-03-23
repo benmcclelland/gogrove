@@ -13,16 +13,52 @@ import (
 )
 
 const (
-	digitalRead     uint8 = 1
-	digitalWrite    uint8 = 2
-	analogRead      uint8 = 3
-	analogWrite     uint8 = 4
-	pinMode         uint8 = 5
+	digitalRead  uint8 = 1
+	digitalWrite uint8 = 2
+	analogRead   uint8 = 3
+	analogWrite  uint8 = 4
+	pinMode      uint8 = 5
+	// dustSensorReadInt uint8 = 6
 	ultraSonic      uint8 = 7
 	firmwareVersion uint8 = 8
-	dhtTemp         uint8 = 40
-
+	// dustSensorInt uint8 = 9
+	// dustSensorRead uint8 = 10
+	// encoderRead uint8 = 11
+	// flowRead uint8 = 12
+	// flowDis uint8 = 13
+	// dustSensorEn uint8 = 14
+	// dustSensorDis uint8 = 15
+	// encoderEn uint8 =  16
+	// encoderDis uint8 = 17
+	// flowEn uint8 = 18
+	// irRead uint8 = 21
+	// irRecvPin uint8 = 22
 	dataNotAvailable uint8 = 23
+	// irReadIsData uint8 = 24
+	dhtTemp uint8 = 40
+	// ledBarInit uint8 = 50
+	// ledBarSetGreenToRed uint8 = 51
+	// ledBarSetLevel uint8 = 52
+	// ledBarSetLed uint8 = 53
+	// ledBarToggelLed uint8 = 54
+	// ledBarSetBits uint8 = 55
+	// ledBarGetBits uint8 = 56
+	// fourDigitInit uint8 = 70
+	// fourDigitSetBright uint8 = 71
+	// fourDigitRAn0s uint8 = 72
+	// fourDigitRAw0s uint8 = 73
+	// fourDigitSetDigit uint8 = 74
+	// fourDigitSetSegment uint8 = 75
+	// fourDigitSetValsWithColon uint8 = 76
+	// fourDigitDisAReadNSec uint8 = 77
+	// fourDigitDispOn uint8 = 78
+	// fourDigitDispOff uint8 = 79
+	// chainLedStorColor uint8 = 90
+	// chainLedInit uint8 = 91
+	// chainLedInitWithColor uint8 = 92
+	// chainLedSetLedsStorPattern uint8 = 93
+	// chainLedSetLedsStorModulo uint8 = 94
+	// chainLedSetBarGraph uint8 = 95
 
 	// PortA0 is the value for GrovePi A0
 	PortA0 uint8 = 0
@@ -50,10 +86,14 @@ const (
 	// ModeOutput is used for SetPortMode to output
 	ModeOutput uint8 = 1
 
-	// BlueDHTSensor is the DHT sensor that comes with base kit
+	// BlueDHTSensor is the DHT sensor that comes with base kit (DHT11)
 	BlueDHTSensor uint8 = 0
-	// WhiteDHTSensor is the separate white DHT sensor
+	// WhiteDHTSensor is the separate white DHT sensor (DHT22)
 	WhiteDHTSensor uint8 = 1
+	// DHT21Sensor DHT21
+	DHT21Sensor uint8 = 2
+	// AM2301Sensor AM2301
+	AM2301Sensor uint8 = 3
 )
 
 // Session holds session info for interacting with GrovePi.
@@ -194,10 +234,10 @@ func (s *Session) AnalogRead(port uint8) (uint16, error) {
 	}
 	i := 0
 	for {
-		if read[0] != dataNotAvailable || i == 5 {
+		if read[0] != dataNotAvailable || i == 100 {
 			break
 		}
-		time.Sleep(2 * time.Millisecond)
+		time.Sleep(1 * time.Millisecond)
 		if err := s.d.Tx(nil, read); err != nil {
 			return 0, err
 		}
