@@ -2,7 +2,6 @@ package gogrove
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
@@ -233,7 +232,6 @@ func (l *LCD) ScrollText(ctx context.Context, line1, line2 string) error {
 			if len(line1)-stbegin < 16 {
 				frame = len(line1) - stbegin
 			}
-			fmt.Println(line1[stbegin:][:frame])
 			err = l.displayLine(line1[stbegin:][:frame])
 			if err != nil {
 				return err
@@ -252,12 +250,10 @@ func (l *LCD) ScrollText(ctx context.Context, line1, line2 string) error {
 			if len(line2)-stbegin < 16 {
 				frame = len(line2) - stbegin
 			}
-			fmt.Println(line2[stbegin:][:frame])
 			err = l.displayLine(line2[stbegin:][:frame])
 			if err != nil {
 				return err
 			}
-			fmt.Println()
 
 			time.Sleep(500 * time.Millisecond)
 			i++
