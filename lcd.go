@@ -20,8 +20,9 @@ const (
 
 // LCD holds session info for interacting with GrovePi LCD.
 type LCD struct {
-	sync.Mutex
-	b i2c.BusCloser
+	rgbmu sync.Mutex
+	txtmu sync.Mutex
+	b     i2c.BusCloser
 }
 
 // NewLCD initializes a new session with the LCD.
@@ -43,8 +44,8 @@ func (l *LCD) Close() error { return l.b.Close() }
 
 // SetRGB sets the background RGB LCD color.
 func (l *LCD) SetRGB(r, g, b uint8) error {
-	l.Lock()
-	defer l.Unlock()
+	l.rgbmu.Lock()
+	defer l.rgbmu.Unlock()
 
 	err := l.b.Tx(displayRGBAddr, []byte{0, 0}, nil)
 	if err != nil {
@@ -76,8 +77,8 @@ func (l *LCD) SetRGB(r, g, b uint8) error {
 
 // ClearText clears the display text.
 func (l *LCD) ClearText() error {
-	l.Lock()
-	defer l.Unlock()
+	l.txtmu.Lock()
+	defer l.txtmu.Unlock()
 
 	err := l.b.Tx(displayTextAddr, []byte{textCmd, 0x01}, nil)
 	if err != nil {
@@ -90,8 +91,8 @@ func (l *LCD) ClearText() error {
 // SetText clears display text, and sets text, accepts newlines and
 // auto wraps long line.
 func (l *LCD) SetText(str string) error {
-	l.Lock()
-	defer l.Unlock()
+	l.txtmu.Lock()
+	defer l.txtmu.Unlock()
 
 	// clear
 	err := l.b.Tx(displayTextAddr, []byte{textCmd, 0x01}, nil)
@@ -141,8 +142,8 @@ func (l *LCD) SetText(str string) error {
 // SetText2 clears display text, and sets text, accepts 2 lines
 // truncating after 16 chars
 func (l *LCD) SetText2(line1, line2 string) error {
-	l.Lock()
-	defer l.Unlock()
+	l.txtmu.Lock()
+	defer l.txtmu.Unlock()
 
 	// clear
 	err := l.b.Tx(displayTextAddr, []byte{textCmd, 0x01}, nil)
@@ -197,8 +198,8 @@ func (l *LCD) displayLine(str string) error {
 // scrolling both lines if longer than 16.  Pass a context to cancel to
 // terminate function, otherwise scolls forever.
 func (l *LCD) ScrollText(ctx context.Context, line1, line2 string) error {
-	l.Lock()
-	defer l.Unlock()
+	l.txtmu.Lock()
+	defer l.txtmu.Unlock()
 
 	i := 0
 	for {
